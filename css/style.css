@@ -507,8 +507,15 @@ body.no-scroll{ overflow: hidden; }
 
 @media (max-width: 480px){
   .cart-panel{ max-width:100%; }
-  .search-overlay{ padding-top: 0; align-items:flex-start; }
+  .search-overlay{ padding-top: env(safe-area-inset-top); align-items:flex-start; }
   .search-panel{ max-height:100vh; height:100vh; }
+  @supports (height: 100dvh){
+    .search-panel{ max-height:100dvh; height:100dvh; }
+  }
+  /* Не даём полям формы и кнопке "Оформить заказ" прятаться под чёлкой
+     и нижней полосой жестов на iPhone */
+  .search-bar{ padding-top: max(18px, env(safe-area-inset-top)); }
+  .cart-foot{ padding-bottom: max(26px, env(safe-area-inset-bottom)); }
 }
 @media (max-width: 560px){ .footer-grid{ grid-template-columns: 1fr; } }
 

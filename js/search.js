@@ -22,9 +22,12 @@
   }
 
   function openSearch() {
+    window.closeMobileNav?.();
     overlay.classList.add('is-open');
     window.syncScrollLock?.();
-    setTimeout(() => input.focus(), 150);
+    // Фокусируем сразу, без задержки — на iOS клавиатура надёжно появляется,
+    // только если focus() вызван синхронно в ответ на нажатие.
+    input.focus();
   }
   function closeSearch() {
     overlay.classList.remove('is-open');

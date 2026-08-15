@@ -146,6 +146,7 @@
   });
 
   function openCart() {
+    window.closeMobileNav?.();
     renderCart();
     cartOverlay.classList.add('is-open');
     window.syncScrollLock?.();
