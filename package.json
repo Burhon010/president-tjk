@@ -1,0 +1,7 @@
+{
+  "name": "president-tjk",
+  "private": true,
+  "version": "1.0.0",
+  "description": "President.tjk — витрина и панель управления товарами.",
+  "type": "module"
+}
