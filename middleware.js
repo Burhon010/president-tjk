@@ -52,7 +52,9 @@ function gatePage(wrong) {
 '<meta name="viewport" content="width=device-width, initial-scale=1">' +
 '<title>Вход — President.tjk</title>' +
 '<style>' +
-'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0a08;color:#f3ead8;font-family:-apple-system,"Segoe UI",sans-serif;}' +
+'html{overflow-x:hidden;overflow-x:clip;}' +
+'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0a08;color:#f3ead8;font-family:-apple-system,"Segoe UI",sans-serif;overflow-x:hidden;overflow-x:clip;}' +
+'@supports (height: 100dvh){ body{ min-height: 100dvh; } }' +
 'form{background:#1b160e;border:1px solid rgba(201,162,75,.2);padding:40px 32px;width:100%;max-width:320px;text-align:center;box-sizing:border-box;}' +
 'h1{font-family:Georgia,serif;font-weight:400;font-size:22px;margin:0 0 20px;}' +
 'input{width:100%;box-sizing:border-box;background:transparent;border:1px solid rgba(201,162,75,.2);color:#f3ead8;padding:12px 14px;font-size:14px;outline:none;margin-bottom:14px;}' +
