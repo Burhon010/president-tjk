@@ -1,32 +1,37 @@
 /* Панель управления товарами — использует токены и шрифты из style.css */
 
 .admin-topbar{
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap;
   padding: 16px var(--edge);
   border-bottom: 1px solid var(--line-soft);
   background: var(--ink-raise);
+  gap: 12px;
 }
-.admin-topbar .brand{ display:flex; align-items:center; gap:.65em; }
-.topbar-actions{ display:flex; align-items:center; gap:10px; }
-.admin-topbar .brand img{ width:34px; height:34px; }
-.admin-topbar .brand-word{ font-family: var(--font-display); font-size:19px; color:var(--text); }
+.admin-topbar .brand{ display:flex; align-items:center; gap:.65em; min-width:0; }
+.topbar-actions{ display:flex; align-items:center; gap:10px; flex:none; }
+.admin-topbar .brand img{ width:34px; height:34px; flex:none; }
+.admin-topbar .brand-word{ font-family: var(--font-display); font-size:19px; color:var(--text); white-space:nowrap; }
 .admin-topbar .brand-word b{ color: var(--gold-bright); font-weight:400; }
 .admin-topbar .brand-word .tld{ color: var(--text-faint); font-family: var(--font-body); font-size:.7em; }
 .admin-topbar a.back{
   font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim);
-  border:1px solid var(--line); padding:9px 18px; transition: border-color .3s ease, color .3s ease;
+  border:1px solid var(--line); padding:9px 18px; white-space:nowrap;
+  transition: border-color .3s ease, color .3s ease;
 }
 .admin-topbar a.back:hover{ border-color:var(--gold); color:var(--gold-bright); }
 
+@media (max-width: 480px){
+  .admin-topbar .brand-word{ font-size:16px; }
+  .admin-topbar a.back{ padding:9px 12px; font-size:11px; }
+}
+@media (max-width: 380px){
+  .admin-topbar{ justify-content:center; }
+  .admin-topbar .brand{ width:100%; justify-content:center; }
+  .topbar-actions{ width:100%; justify-content:center; }
+}
 
 /* ---------- Основная область ---------- */
 .admin-main{ max-width:1080px; margin:0 auto; padding: 44px var(--edge) 100px; }
-.admin-note{
-  display:flex; gap:10px; align-items:flex-start;
-  background: var(--surface); border:1px solid var(--line-soft); padding:14px 18px;
-  color: var(--text-dim); font-size:13px; line-height:1.6; margin-bottom:32px;
-}
-.admin-note svg{ width:16px; height:16px; color:var(--gold); flex:none; margin-top:2px; }
 
 .admin-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:28px; }
 .admin-head h2{ font-size:28px; color:var(--text); }
