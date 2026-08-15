@@ -205,6 +205,11 @@ body.no-scroll{ overflow: hidden; }
   line-height: 1.04; margin-top: 22px;
   color: var(--text);
 }
+@media (max-width: 420px){
+  /* Чуть меньше, чтобы длинные слова (например "выгравированное")
+     целиком помещались в строку и не вылезали за край экрана */
+  .hero h1{ font-size: 34px; }
+}
 .hero h1 em{
   font-style: normal; color: var(--gold-bright);
   background: linear-gradient(100deg, var(--gold-deep) 0%, var(--gold-bright) 35%, var(--gold) 55%, var(--gold-bright) 75%, var(--gold-deep) 100%);
