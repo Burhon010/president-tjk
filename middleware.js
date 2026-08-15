@@ -1,8 +1,9 @@
 // Серверная защита панели управления.
-// Работает на Vercel Edge — проверяет пароль ДО того, как отдать браузеру
-// admin.html или js/admin.js. Пароль хранится в переменной окружения
-// ADMIN_PANEL_PASSWORD (Vercel → Settings → Environment Variables), а не в коде,
-// поэтому не виден никому в репозитории или в исходниках сайта.
+// Работает на Vercel Edge — проверяет логин и пароль ДО того, как отдать
+// браузеру admin.html или js/admin.js. Значения хранятся в переменных
+// окружения ADMIN_PANEL_LOGIN и ADMIN_PANEL_PASSWORD (Vercel → Settings →
+// Environment Variables), а не в коде — поэтому не видны никому
+// в репозитории или в исходниках сайта.
 
 export const config = {
   matcher: ['/admin.html', '/js/admin.js'],
@@ -12,22 +13,27 @@ const COOKIE_NAME = 'ptjk_admin_auth';
 
 export default async function middleware(request) {
   const password = process.env.ADMIN_PANEL_PASSWORD;
+  const login = process.env.ADMIN_PANEL_LOGIN || 'admin';
 
   // Если переменная окружения ещё не настроена — не блокируем доступ,
   // чтобы случайно не запереть админку до того, как пароль будет задан.
   if (!password) return;
 
+  const authToken = login + ':' + password;
+
   const cookieHeader = request.headers.get('cookie') || '';
   const isAuthorized = cookieHeader
     .split(';')
-    .some((part) => part.trim() === COOKIE_NAME + '=' + password);
+    .some((part) => part.trim() === COOKIE_NAME + '=' + authToken);
 
   if (isAuthorized) return;
 
   const url = new URL(request.url);
-  const submitted = url.searchParams.get('key');
+  const submittedUser = url.searchParams.get('user');
+  const submittedPass = url.searchParams.get('key');
+  const attempted = submittedUser !== null || submittedPass !== null;
 
-  if (submitted === password) {
+  if (submittedUser === login && submittedPass === password) {
     const redirectUrl = new URL(url.pathname, url.origin);
     const response = new Response(null, {
       status: 302,
@@ -35,12 +41,12 @@ export default async function middleware(request) {
     });
     response.headers.append(
       'Set-Cookie',
-      COOKIE_NAME + '=' + password + '; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax'
+      COOKIE_NAME + '=' + authToken + '; Path=/; Max-Age=2592000; HttpOnly; Secure; SameSite=Lax'
     );
     return response;
   }
 
-  return new Response(gatePage(Boolean(submitted)), {
+  return new Response(gatePage(attempted), {
     status: 401,
     headers: { 'content-type': 'text/html; charset=utf-8' },
   });
@@ -65,8 +71,9 @@ function gatePage(wrong) {
 '<body>' +
 '<form method="GET">' +
 '<h1>Доступ к панели</h1>' +
-(wrong ? '<p class="err">Неверный пароль</p>' : '') +
-'<input type="password" name="key" placeholder="Пароль" autofocus required>' +
+(wrong ? '<p class="err">Неверный логин или пароль</p>' : '') +
+'<input type="text" name="user" placeholder="Логин" autocomplete="username" autofocus required>' +
+'<input type="password" name="key" placeholder="Пароль" autocomplete="current-password" required>' +
 '<button type="submit">Войти</button>' +
 '</form>' +
 '</body></html>';
