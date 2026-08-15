@@ -3,16 +3,29 @@ const header = document.getElementById('siteHeader');
 const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 12);
 onScroll(); window.addEventListener('scroll', onScroll, { passive: true });
 
+// блокировка скролла страницы, пока открыто мобильное меню, поиск или корзина
+function syncScrollLock(){
+  const navOpen = nav.classList.contains('is-open');
+  const cartOverlay = document.getElementById('cartOverlay');
+  const searchOverlay = document.getElementById('searchOverlay');
+  const cartOpen = cartOverlay && cartOverlay.classList.contains('is-open');
+  const searchOpen = searchOverlay && searchOverlay.classList.contains('is-open');
+  document.body.classList.toggle('no-scroll', navOpen || cartOpen || searchOpen);
+}
+window.syncScrollLock = syncScrollLock;
+
 // mobile nav
 const burger = document.getElementById('burgerBtn');
 const nav = document.getElementById('siteNav');
 burger.addEventListener('click', () => {
   const open = nav.classList.toggle('is-open');
   burger.setAttribute('aria-expanded', String(open));
+  syncScrollLock();
 });
 nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
   nav.classList.remove('is-open');
   burger.setAttribute('aria-expanded', 'false');
+  syncScrollLock();
 }));
 
 // scroll reveal

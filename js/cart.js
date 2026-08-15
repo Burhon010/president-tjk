@@ -148,9 +148,11 @@
   function openCart() {
     renderCart();
     cartOverlay.classList.add('is-open');
+    window.syncScrollLock?.();
   }
   function closeCart() {
     cartOverlay.classList.remove('is-open');
+    window.syncScrollLock?.();
   }
   cartBtn.addEventListener('click', openCart);
   cartClose.addEventListener('click', closeCart);

@@ -23,10 +23,12 @@
 
   function openSearch() {
     overlay.classList.add('is-open');
+    window.syncScrollLock?.();
     setTimeout(() => input.focus(), 150);
   }
   function closeSearch() {
     overlay.classList.remove('is-open');
+    window.syncScrollLock?.();
   }
 
   searchBtn.addEventListener('click', openSearch);
