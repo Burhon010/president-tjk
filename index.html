@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>President.tjk — Дом роскоши Таджикистана</title>
+<meta name="description" content="Часы, сумки и коллекционные сувениры с государственной символикой Таджикистана.">
+<link rel="icon" type="image/png" href="assets/logo-256.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================ HEADER -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <svg class="header-emblem" viewBox="0 0 200 200" aria-hidden="true">
+      <g id="emblemRays" style="transform-origin:100px 130px;">
+        <g stroke="var(--silver)" stroke-width="1" opacity=".8">
+          <path d="M100 130 L100 40" />
+          <path d="M100 130 L138 46" />
+          <path d="M100 130 L166 70" />
+          <path d="M100 130 L178 104" />
+          <path d="M100 130 L62 46" />
+          <path d="M100 130 L34 70" />
+          <path d="M100 130 L22 104" />
+        </g>
+      </g>
+      <path d="M40 130 Q100 76 160 130" fill="none" stroke="var(--silver)" stroke-width="2"/>
+      <path d="M55 130 Q100 92 145 130" fill="none" stroke="var(--silver-dim)" stroke-width="1.4"/>
+      <circle cx="100" cy="34" r="5" fill="var(--silver)"/>
+      <g fill="var(--silver-dim)">
+        <circle cx="76" cy="24" r="2.6"/><circle cx="124" cy="24" r="2.6"/>
+        <circle cx="58" cy="34" r="2.2"/><circle cx="142" cy="34" r="2.2"/>
+      </g>
+    </svg>
+
+    <a class="brand" href="#top" aria-label="President.tjk — на главную">
+      <img class="brand-mark" src="assets/logo-256.png" alt="President.tjk">
+      <span class="brand-word"><b>President</b><span class="tld">.tjk</span></span>
+    </a>
+
+    <nav class="nav" id="siteNav">
+      <a href="#collections">Коллекции</a>
+      <a href="#products">Часы</a>
+      <a href="#products">Сумки</a>
+      <a href="#products">Сувениры</a>
+      <a href="#heritage">О бренде</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="icon-btn" id="searchBtn" aria-label="Поиск">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+      <button class="icon-btn" id="cartBtn" aria-label="Корзина">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4h2l2.4 12.2a2 2 0 002 1.8h8.2a2 2 0 002-1.7L21 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="17" cy="21" r="1"/></svg>
+        <span class="cart-badge" id="cartBadge" hidden>0</span>
+      </button>
+      <button class="burger" id="burgerBtn" aria-label="Меню" aria-expanded="false" aria-controls="siteNav"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ ПОИСК -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-panel">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Часы, сумки, сувениры…" autocomplete="off">
+      <button class="search-close" id="searchClose" aria-label="Закрыть поиск">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
+    </div>
+    <div class="search-results" id="searchResults">
+      <p class="search-hint">Начните вводить название или категорию товара.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ КОРЗИНА -->
+<div class="cart-overlay" id="cartOverlay">
+  <div class="cart-panel">
+    <div class="cart-head">
+      <h3>Корзина</h3>
+      <button class="cart-close" id="cartClose" aria-label="Закрыть корзину">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-foot" id="cartFoot" hidden>
+      <div class="cart-total">
+        <span class="label">Итого</span>
+        <span class="value" id="cartTotal">0 TJS</span>
+      </div>
+      <button class="btn btn-gold" id="checkoutBtn" type="button" style="width:100%; justify-content:center;">Оформить заказ в Telegram</button>
+      <p class="cart-hint">Текст заказа скопируется, откроется чат — просто вставьте и отправьте.</p>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="siteToast"></div>
+
+<!-- ============================================================ HERO -->
+<section class="hero" id="top">
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="container hero-content">
+    <p class="eyebrow" data-reveal>Дом роскоши Таджикистана</p>
+    <h1 data-reveal style="transition-delay:.08s">Наследие,<br><em>выгравированное</em> в золоте.</h1>
+    <p class="lede" data-reveal style="transition-delay:.16s">Часы, кожаные изделия и коллекционные сувениры с гербом Таджикистана — созданные вручную для тех, кто носит историю своей страны с собой.</p>
+    <div class="hero-cta" data-reveal style="transition-delay:.24s">
+      <a class="btn btn-gold" href="#products">Смотреть коллекцию</a>
+      <a class="btn btn-ghost" href="#heritage">О бренде</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Листайте</span><i></i></div>
+</section>
+
+<!-- ============================================================ MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>
+      <span class="dot" aria-hidden="true"></span>Часы
+      <span class="dot" aria-hidden="true"></span>Сумки
+      <span class="dot" aria-hidden="true"></span>Сувениры
+      <span class="dot" aria-hidden="true"></span>Лимитированные серии
+    </span>
+    <span>
+      <span class="dot" aria-hidden="true"></span>Часы
+      <span class="dot" aria-hidden="true"></span>Сумки
+      <span class="dot" aria-hidden="true"></span>Сувениры
+      <span class="dot" aria-hidden="true"></span>Лимитированные серии
+    </span>
+  </div>
+</div>
+
+<!-- ============================================================ COLLECTIONS -->
+<section class="section" id="collections">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="eyebrow">Три линии</p>
+        <h2>Коллекции President</h2>
+      </div>
+      <p class="lede">Каждое изделие несёт восьмиконечную звезду и герб — знак подлинности и происхождения.</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="collections">
+      <div class="collection-card" data-reveal>
+        <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 1.9"/></svg>
+        <div>
+          <h3>Часы</h3>
+          <p>Механизмы швейцарской точности в корпусах из золота 18К и титана, с гравировкой герба на заднике.</p>
+        </div>
+        <a class="go" href="#products">Смотреть часы →</a>
+      </div>
+      <div class="collection-card" data-reveal style="transition-delay:.1s">
+        <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 9V7a5 5 0 0110 0v2"/><rect x="4" y="9" width="16" height="12" rx="1.5"/></svg>
+        <div>
+          <h3>Сумки</h3>
+          <p>Кожа высшей выделки, тиснёная звезда President и золотая фурнитура ручной сборки.</p>
+        </div>
+        <a class="go" href="#products">Смотреть сумки →</a>
+      </div>
+      <div class="collection-card" data-reveal style="transition-delay:.2s">
+        <svg class="glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M5 19l.9 2.2L8 22l-2.1.8L5 25l-.9-2.2L2 22l2.1-.8z"/></svg>
+        <div>
+          <h3>Сувениры</h3>
+          <p>Коллекционные миниатюры и подарочные наборы, вдохновлённые символикой Таджикистана.</p>
+        </div>
+        <a class="go" href="#products">Смотреть сувениры →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ PRODUCTS -->
+<section class="section" id="products">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <div>
+        <p class="eyebrow">Избранное</p>
+        <h2>Изделия сезона</h2>
+      </div>
+      <p class="lede">Каждый экземпляр пронумерован и поставляется с сертификатом подлинности.</p>
+    </div>
+
+    <div class="products" id="productsGrid"></div>
+  </div>
+</section>
+
+<!-- ============================================================ HERITAGE -->
+<section class="section heritage" id="heritage">
+  <div class="container heritage-grid">
+    <div class="heritage-art" data-reveal>
+      <svg viewBox="0 0 400 400" aria-hidden="true">
+        <defs>
+          <radialGradient id="sunGlow" cx="50%" cy="38%" r="60%">
+            <stop offset="0%" stop-color="var(--gold-bright)" stop-opacity=".55"/>
+            <stop offset="100%" stop-color="var(--gold-bright)" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="200" cy="150" r="150" fill="url(#sunGlow)"/>
+        <g id="heritageRays" stroke="var(--gold)" stroke-width="1.4" opacity=".75" style="transform-origin:200px 150px;">
+          <path d="M200 150 L200 40"/><path d="M200 150 L262 55"/><path d="M200 150 L312 92"/>
+          <path d="M200 150 L138 55"/><path d="M200 150 L88 92"/>
+        </g>
+        <circle cx="200" cy="150" r="30" fill="none" stroke="var(--gold-bright)" stroke-width="2.5"/>
+        <path d="M60 260 L140 170 L190 220 L250 140 L340 260 Z" fill="var(--surface-2)" stroke="var(--silver-dim)" stroke-width="1.4"/>
+        <path d="M60 260 L340 260" stroke="var(--gold-deep)" stroke-width="2"/>
+      </svg>
+    </div>
+    <div>
+      <p class="eyebrow" data-reveal>О бренде</p>
+      <h2 data-reveal style="transition-delay:.06s">Символы страны, ставшие формой.</h2>
+      <p class="quote" data-reveal style="transition-delay:.12s">«Мы гравируем не логотип — мы гравируем принадлежность.»</p>
+      <p class="body-text" data-reveal style="transition-delay:.18s">President.tjk родился на пересечении вершин Памира и традиций ювелирного дела Согдианы. Каждая линия наших изделий — от циферблата часов до застёжки сумки — отсылает к государственной символике Таджикистана: восьмиконечной звезде, солнечным лучам и очертаниям гор.</p>
+      <p class="body-text" data-reveal style="transition-delay:.24s">Мы работаем малыми партиями с мастерами, прошедшими обучение в старейших ателье Европы, чтобы каждое изделие можно было передать по наследству.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ USP -->
+<section class="container" style="padding-block: clamp(0px, 4vw, 40px);">
+  <div class="usp">
+    <div class="usp-item" data-reveal>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2l7 3v6c0 5-3.2 8.5-7 10-3.8-1.5-7-5-7-10V5z"/><path d="M9 12l2 2 4-4"/></svg>
+      <h4>Сертификат подлинности</h4>
+      <p>Каждое изделие пронумеровано и внесено в реестр бренда.</p>
+    </div>
+    <div class="usp-item" data-reveal style="transition-delay:.06s">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2l2.6 5.9L21 9l-4.5 4.4 1 6.1L12 16.7 6.5 19.5l1-6.1L3 9l6.4-1.1z"/></svg>
+      <h4>Гравировка герба</h4>
+      <p>Ручная гравировка государственной символики на заказ.</p>
+    </div>
+    <div class="usp-item" data-reveal style="transition-delay:.12s">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z"/><path d="M3 12h18M12 3a14 14 0 010 18 14 14 0 010-18z"/></svg>
+      <h4>Доставка по миру</h4>
+      <p>Страхованная курьерская доставка из Душанбе в любую страну.</p>
+    </div>
+    <div class="usp-item" data-reveal style="transition-delay:.18s">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M3 12h18M12 8v13M8 8a3 3 0 013-5 3 3 0 013 5"/></svg>
+      <h4>Фирменная упаковка</h4>
+      <p>Золотой футляр и именная карточка на каждый заказ.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ FOOTER -->
+<footer class="site-footer" id="contact">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="#top">
+        <img class="brand-mark" src="assets/logo-256.png" alt="President.tjk">
+        <span class="brand-word"><b>President</b><span class="tld">.tjk</span></span>
+      </a>
+      <p>Дом роскоши Таджикистана. Часы, кожаные изделия и сувениры с государственной символикой.</p>
+      <div class="socials">
+        <a href="https://www.instagram.com/president.tjk" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+        <a href="https://t.me/+992885444442" target="_blank" rel="noopener" aria-label="Написать в Telegram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 4L3 11l6 2m12-9l-4 17-8-6m12-11L9 13"/></svg></a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h5>Каталог</h5>
+      <ul>
+        <li><a href="#products">Часы</a></li>
+        <li><a href="#products">Сумки</a></li>
+        <li><a href="#products">Сувениры</a></li>
+        <li><a href="#collections">Все коллекции</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Бренд</h5>
+      <ul>
+        <li><a href="#heritage">О нас</a></li>
+        <li><a href="#">Мастерская</a></li>
+        <li><a href="#">Сертификация</a></li>
+        <li><a href="#">Пресса</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Контакты</h5>
+      <address>
+        Rudaki 55/1<br>
+        Dushanbe, Tajikistan<br>
+        <a href="tel:+992885444442">+992 88 544 4442</a><br>
+        <a href="https://www.instagram.com/president.tjk" target="_blank" rel="noopener">@president.tjk</a>
+      </address>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <span>© 2026 President.tjk — Дом роскоши Таджикистана</span>
+    <div class="marks">
+      <a href="#">Политика конфиденциальности</a>
+      <a href="#">Условия</a>
+      <a href="admin.html">Управление</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/products-data.js"></script>
+<script src="js/products-render.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/search.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
