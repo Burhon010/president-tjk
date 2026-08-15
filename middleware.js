@@ -12,6 +12,21 @@ export const config = {
 const COOKIE_NAME = 'ptjk_admin_auth';
 
 export default async function middleware(request) {
+  const url = new URL(request.url);
+
+  // Выход: /admin.html?logout=1 — стирает сессию и возвращает на экран входа
+  if (url.searchParams.get('logout') === '1') {
+    const response = new Response(null, {
+      status: 302,
+      headers: { Location: new URL('/admin.html', url.origin).toString() },
+    });
+    response.headers.append(
+      'Set-Cookie',
+      COOKIE_NAME + '=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax'
+    );
+    return response;
+  }
+
   const password = process.env.ADMIN_PANEL_PASSWORD;
   const login = process.env.ADMIN_PANEL_LOGIN || 'admin';
 
@@ -28,7 +43,6 @@ export default async function middleware(request) {
 
   if (isAuthorized) return;
 
-  const url = new URL(request.url);
   const submittedUser = url.searchParams.get('user');
   const submittedPass = url.searchParams.get('key');
   const attempted = submittedUser !== null || submittedPass !== null;
@@ -65,7 +79,12 @@ function gatePage(wrong) {
 'h1{font-family:Georgia,serif;font-weight:400;font-size:22px;margin:0 0 20px;}' +
 'input{width:100%;box-sizing:border-box;background:transparent;border:1px solid rgba(201,162,75,.2);color:#f3ead8;padding:12px 14px;font-size:14px;outline:none;margin-bottom:14px;}' +
 'input:focus{border-color:#c9a24b;}' +
-'button{width:100%;padding:12px;background:linear-gradient(135deg,#f2d98a,#c9a24b 60%,#8a6a28);border:none;color:#16130c;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;cursor:pointer;}' +
+'.pwd-field{position:relative;}' +
+'.pwd-field input{padding-right:44px;}' +
+'.eye-btn{position:absolute;top:0;right:0;width:44px;height:44px;background:none;border:none;color:#7d7462;cursor:pointer;display:grid;place-items:center;padding:0;}' +
+'.eye-btn:hover{color:#f2d98a;}' +
+'.eye-btn svg{width:18px;height:18px;}' +
+'button[type=submit]{width:100%;padding:12px;background:linear-gradient(135deg,#f2d98a,#c9a24b 60%,#8a6a28);border:none;color:#16130c;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:12px;cursor:pointer;}' +
 'p.err{color:#e08a71;font-size:13px;margin:-6px 0 14px;}' +
 '</style></head>' +
 '<body>' +
@@ -73,8 +92,21 @@ function gatePage(wrong) {
 '<h1>Доступ к панели</h1>' +
 (wrong ? '<p class="err">Неверный логин или пароль</p>' : '') +
 '<input type="text" name="user" placeholder="Логин" autocomplete="username" autofocus required>' +
-'<input type="password" name="key" placeholder="Пароль" autocomplete="current-password" required>' +
+'<div class="pwd-field">' +
+'<input type="password" name="key" id="key" placeholder="Пароль" autocomplete="current-password" required>' +
+'<button type="button" class="eye-btn" id="eyeBtn" aria-label="Показать пароль">' +
+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>' +
+'</button>' +
+'</div>' +
 '<button type="submit">Войти</button>' +
 '</form>' +
+'<script>' +
+'document.getElementById("eyeBtn").addEventListener("click",function(){' +
+'var i=document.getElementById("key");' +
+'var showing=i.type==="text";' +
+'i.type=showing?"password":"text";' +
+'this.style.color=showing?"#7d7462":"#f2d98a";' +
+'});' +
+'</' + 'script>' +
 '</body></html>';
 }

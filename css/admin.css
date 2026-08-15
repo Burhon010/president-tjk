@@ -7,6 +7,7 @@
   background: var(--ink-raise);
 }
 .admin-topbar .brand{ display:flex; align-items:center; gap:.65em; }
+.topbar-actions{ display:flex; align-items:center; gap:10px; }
 .admin-topbar .brand img{ width:34px; height:34px; }
 .admin-topbar .brand-word{ font-family: var(--font-display); font-size:19px; color:var(--text); }
 .admin-topbar .brand-word b{ color: var(--gold-bright); font-weight:400; }
