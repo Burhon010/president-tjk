@@ -291,36 +291,6 @@ body.no-scroll{ overflow: hidden; }
   background: var(--gold); border-color: var(--gold); color:#16130c; font-weight:600;
 }
 
-/* ============ COLLECTIONS ============ */
-.collections{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--line); border:1px solid var(--line); }
-.collection-card{
-  background: var(--ink);
-  padding: 44px 34px; min-height: 340px;
-  display:flex; flex-direction:column; justify-content:space-between;
-  position:relative; overflow:hidden;
-  transition: background .4s ease;
-}
-.collection-card::before{
-  content:""; position:absolute; inset:0;
-  background: radial-gradient(120% 100% at 50% 120%, rgba(201,162,75,.14), transparent 60%);
-  opacity:0; transition: opacity .5s ease;
-}
-.collection-card:hover{ background: var(--surface); }
-.collection-card:hover::before{ opacity:1; }
-.collection-card .glyph{ width:46px; height:46px; color: var(--gold); }
-.collection-card h3{ font-size: 26px; margin-top: 22px; color: var(--text); }
-.collection-card p{ color: var(--text-dim); margin-top: 10px; font-size: 14.5px; max-width: 32ch; }
-.collection-card .go{
-  margin-top: 26px; display:inline-flex; align-items:center; gap:.5em;
-  font-size: 12px; letter-spacing:.12em; text-transform:uppercase; color: var(--gold);
-  transform: translateX(0); transition: transform .3s ease;
-}
-.collection-card:hover .go{ transform: translateX(6px); }
-@media (max-width: 880px){
-  .collections{ grid-template-columns: 1fr; }
-  .collection-card{ min-height: 0; padding: 36px 30px; }
-}
-
 /* ============ PRODUCT GRID ============ */
 .products{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 .product-card{
