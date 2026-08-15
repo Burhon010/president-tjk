@@ -157,14 +157,19 @@ photoInput.addEventListener('change', () => {
   reader.onload = (ev) => {
     const img = new Image();
     img.onload = () => {
-      const maxW = 640;
-      const scale = Math.min(1, maxW / img.width);
-      const w = Math.round(img.width * scale);
-      const h = Math.round(img.height * scale);
+      // Универсальный формат для всех фото товара: квадрат 1200×1200 —
+      // берём центральную квадратную часть исходника (какого бы размера
+      // и пропорций он ни был) и приводим ровно к 1200×1200. Работает
+      // одинаково что на телефоне, что на компьютере — это просто холст
+      // в браузере, а не что-то зависящее от устройства.
+      const SIZE = 1200;
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = (img.height - side) / 2;
       const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.width = SIZE;
+      canvas.height = SIZE;
+      canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
       currentImageData = canvas.toDataURL('image/jpeg', 0.82);
       updatePhotoPreview();
     };

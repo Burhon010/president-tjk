@@ -321,7 +321,7 @@ body.no-scroll{ overflow: hidden; }
   box-shadow: 0 30px 50px -30px rgba(0,0,0,.6);
 }
 .product-media{
-  aspect-ratio: 4/3; position:relative; overflow:hidden;
+  aspect-ratio: 1/1; position:relative; overflow:hidden;
   background: radial-gradient(120% 120% at 30% 20%, #241c10, #0e0c08 70%);
   display:grid; place-items:center;
 }
