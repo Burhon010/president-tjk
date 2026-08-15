@@ -204,7 +204,6 @@ body.no-scroll{ overflow: hidden; }
   font-size: clamp(40px, 6.2vw, 80px);
   line-height: 1.04; margin-top: 22px;
   color: var(--text);
-  overflow-wrap: break-word;
 }
 .hero h1 em{
   font-style: normal; color: var(--gold-bright);
