@@ -278,6 +278,19 @@ body.no-scroll{ overflow: hidden; }
 .section-head h2{ font-size: clamp(30px, 3.6vw, 46px); margin-top:14px; }
 .section-head .lede{ max-width: 42ch; color: var(--text-dim); }
 
+/* ============ ФИЛЬТР ПО КАТЕГОРИЯМ (витрина) ============ */
+.store-filter-tabs{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom: 40px; }
+.store-filter-tab{
+  background:transparent; border:1px solid var(--line); color: var(--text-dim);
+  padding:9px 22px; font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+  border-radius:20px; cursor:pointer; font-family: var(--font-body);
+  transition: border-color .3s ease, color .3s ease, background .3s ease;
+}
+.store-filter-tab:hover{ border-color: var(--gold); color: var(--gold-bright); }
+.store-filter-tab.is-active{
+  background: var(--gold); border-color: var(--gold); color:#16130c; font-weight:600;
+}
+
 /* ============ COLLECTIONS ============ */
 .collections{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--line); border:1px solid var(--line); }
 .collection-card{

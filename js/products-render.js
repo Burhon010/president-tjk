@@ -1,9 +1,14 @@
-// Рендер сетки товаров на витрине из каталога (localStorage).
-// Выполняется синхронно при загрузке страницы, до того как main.js
-// настраивает scroll-reveal — поэтому новые карточки тоже красиво появляются.
+// Рендер сетки товаров на витрине из каталога (localStorage) с фильтром
+// по категории. Выполняется синхронно при загрузке страницы, до того как
+// main.js настраивает scroll-reveal — поэтому карточки при первой отрисовке
+// тоже красиво появляются.
 (function () {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
+
+  const tabsWrap = document.getElementById('storeFilterTabs');
+  let activeCategory = '';
+  let hasRenderedOnce = false;
 
   function formatPrice(n) {
     return Number(n).toLocaleString('ru-RU');
@@ -50,13 +55,51 @@
   }
 
   function render() {
-    const products = getProducts();
+    const all = getProducts();
+    const products = activeCategory ? all.filter((p) => p.category === activeCategory) : all;
+
     if (!products.length) {
-      grid.innerHTML = '<p style="color:var(--text-faint);grid-column:1/-1;text-align:center;padding:40px 0;">Каталог пока пуст — добавьте товары в панели управления.</p>';
-      return;
+      grid.innerHTML = '<p style="color:var(--text-faint);grid-column:1/-1;text-align:center;padding:40px 0;">' +
+        (activeCategory ? 'В категории «' + activeCategory + '» пока нет товаров.' : 'Каталог пока пуст — добавьте товары в панели управления.') +
+        '</p>';
+    } else {
+      grid.innerHTML = products.map(cardMarkup).join('');
     }
-    grid.innerHTML = products.map(cardMarkup).join('');
+
+    // При первой загрузке карточки красиво проявляются через observer в main.js.
+    // При повторном рендере (после смены фильтра) новые карточки этот observer
+    // ещё не видел — показываем их сразу, без анимации.
+    if (hasRenderedOnce) {
+      grid.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in-view'));
+    }
+    hasRenderedOnce = true;
   }
+
+  function setActiveCategory(cat) {
+    activeCategory = cat || '';
+    if (tabsWrap) {
+      tabsWrap.querySelectorAll('.store-filter-tab').forEach((btn) => {
+        btn.classList.toggle('is-active', (btn.dataset.cat || '') === activeCategory);
+      });
+    }
+    render();
+  }
+
+  if (tabsWrap) {
+    tabsWrap.addEventListener('click', (e) => {
+      const btn = e.target.closest('.store-filter-tab');
+      if (!btn) return;
+      setActiveCategory(btn.dataset.cat);
+    });
+  }
+
+  // Ссылки «Смотреть часы →», пункты меню и футера с data-filter
+  // переключают фильтр и (за счёт обычного #products в href) сами
+  // прокручивают к каталогу — работает одинаково на телефоне,
+  // планшете и компьютере, без какого-либо кода под конкретное устройство.
+  document.querySelectorAll('[data-filter]').forEach((link) => {
+    link.addEventListener('click', () => setActiveCategory(link.dataset.filter));
+  });
 
   render();
 })();
