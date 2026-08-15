@@ -1,42 +1,7 @@
 // Логика панели управления товарами.
-// Простая защита логином/паролем на стороне браузера — этого достаточно, чтобы
-// случайный посетитель не полез редактировать каталог, но это НЕ полноценная
-// авторизация. Для настоящей многопользовательской защиты нужен сервер.
-
-const CREDS_KEY = 'presidentTjkAdminCreds';
-const AUTH_KEY = 'presidentTjkAdminAuth';
-const DEFAULT_CREDS = { login: 'admin', password: 'President_4442' };
-
-function getCreds() {
-  try {
-    const raw = localStorage.getItem(CREDS_KEY);
-    if (!raw) { saveCreds(DEFAULT_CREDS); return { ...DEFAULT_CREDS }; }
-    const creds = JSON.parse(raw);
-    return creds && creds.login && creds.password ? creds : { ...DEFAULT_CREDS };
-  } catch (e) {
-    return { ...DEFAULT_CREDS };
-  }
-}
-function saveCreds(creds) {
-  localStorage.setItem(CREDS_KEY, JSON.stringify(creds));
-}
-
-const loginScreen = document.getElementById('loginScreen');
-const adminApp = document.getElementById('adminApp');
-const loginForm = document.getElementById('loginForm');
-const loginError = document.getElementById('loginError');
-const loginInput = document.getElementById('loginInput');
-const passwordInput = document.getElementById('passwordInput');
-
-const accessBtn = document.getElementById('accessBtn');
-const accessOverlay = document.getElementById('accessOverlay');
-const accessForm = document.getElementById('accessForm');
-const accessError = document.getElementById('accessError');
-const cancelAccessBtn = document.getElementById('cancelAccessBtn');
-const currentPasswordInput = document.getElementById('currentPasswordInput');
-const newLoginInput = document.getElementById('newLoginInput');
-const newPasswordInput = document.getElementById('newPasswordInput');
-const repeatPasswordInput = document.getElementById('repeatPasswordInput');
+// Отдельного входа внутри самой панели больше нет — доступ к этой странице
+// уже проверен на сервере (см. middleware.js), поэтому здесь сразу открыт
+// весь функционал.
 
 const tbody = document.getElementById('productTbody');
 const countEl = document.getElementById('productCount');
@@ -56,84 +21,9 @@ const toast = document.getElementById('toast');
 
 const editIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>';
 const trashIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m2 0-1 13a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7"/></svg>';
-const eyeIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>';
-const eyeOffIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0112 5c7 0 10.5 7 10.5 7a13.5 13.5 0 01-3.1 4M6.6 6.6C3.5 8.6 1.5 12 1.5 12s3.5 7 10.5 7c1.4 0 2.7-.3 3.8-.7"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></svg>';
-
-// Переключатели видимости пароля (глазок)
-document.querySelectorAll('.toggle-eye').forEach((btn) => {
-  btn.innerHTML = eyeIconSvg;
-  btn.addEventListener('click', () => {
-    const input = document.getElementById(btn.dataset.target);
-    if (!input) return;
-    const showing = input.type === 'text';
-    input.type = showing ? 'password' : 'text';
-    btn.innerHTML = showing ? eyeIconSvg : eyeOffIconSvg;
-    btn.setAttribute('aria-label', showing ? 'Показать пароль' : 'Скрыть пароль');
-  });
-});
 
 let editingId = null;
 let currentImageData = '';
-
-// ---------- Вход ----------
-if (sessionStorage.getItem(AUTH_KEY) === '1') showApp();
-
-loginForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const creds = getCreds();
-  if (loginInput.value.trim() === creds.login && passwordInput.value === creds.password) {
-    sessionStorage.setItem(AUTH_KEY, '1');
-    loginError.textContent = '';
-    showApp();
-  } else {
-    loginError.textContent = 'Неверный логин или пароль';
-    passwordInput.value = '';
-    passwordInput.focus();
-  }
-});
-
-function showApp() {
-  loginScreen.style.display = 'none';
-  adminApp.style.display = 'block';
-  renderTable();
-}
-
-// ---------- Смена логина/пароля ----------
-accessBtn.addEventListener('click', () => {
-  currentPasswordInput.value = '';
-  newLoginInput.value = getCreds().login;
-  newPasswordInput.value = '';
-  repeatPasswordInput.value = '';
-  accessError.textContent = '';
-  accessOverlay.classList.add('is-open');
-  setTimeout(() => currentPasswordInput.focus(), 150);
-});
-cancelAccessBtn.addEventListener('click', () => accessOverlay.classList.remove('is-open'));
-accessOverlay.addEventListener('click', (e) => { if (e.target === accessOverlay) accessOverlay.classList.remove('is-open'); });
-
-accessForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const creds = getCreds();
-
-  if (currentPasswordInput.value !== creds.password) {
-    accessError.textContent = 'Текущий пароль указан неверно';
-    return;
-  }
-  const newLogin = newLoginInput.value.trim();
-  const newPassword = newPasswordInput.value;
-  if (!newLogin || !newPassword) {
-    accessError.textContent = 'Заполните логин и новый пароль';
-    return;
-  }
-  if (newPassword !== repeatPasswordInput.value) {
-    accessError.textContent = 'Пароли не совпадают';
-    return;
-  }
-
-  saveCreds({ login: newLogin, password: newPassword });
-  accessOverlay.classList.remove('is-open');
-  showToast('Логин и пароль обновлены');
-});
 
 // ---------- Фильтр по категориям ----------
 const filterTabs = document.getElementById('filterTabs');
@@ -332,3 +222,5 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2400);
 }
+
+renderTable();
