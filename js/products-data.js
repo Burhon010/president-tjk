@@ -5,7 +5,7 @@
 // в браузере, где его редактировали.
 
 const CLOUDINARY_CLOUD_NAME = 's2yi4ma6';
-const CATALOG_URL = 'https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/raw/upload/president-tjk/catalog';
+const CATALOG_URL = 'https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/raw/upload/president-tjk/catalog.json';
 
 // Наборы штрихов для карточек без своего фото — один узнаваемый значок на категорию,
 // плюс несколько «фирменных» вариантов для товаров из стартового каталога.

@@ -53,7 +53,10 @@ async function saveProducts(list) {
   await uploadToCloudinary(blob, {
     resourceType: 'raw',
     folder: 'president-tjk',
-    publicId: 'catalog',
+    // Cloudinary сам дописывает расширение файла к public_id для raw-ресурсов,
+    // поэтому указываем его явно — иначе адрес для чтения и адрес записи
+    // разъезжаются (были расхождения именно из-за этого).
+    publicId: 'catalog.json',
     overwrite: 'true',
     invalidate: 'true',
     filename: 'catalog.json',
