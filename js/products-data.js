@@ -5,7 +5,6 @@
 // в браузере, где его редактировали.
 
 const CLOUDINARY_CLOUD_NAME = 's2yi4ma6';
-const CATALOG_URL = 'https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/raw/upload/president-tjk/catalog.json';
 
 // Наборы штрихов для карточек без своего фото — один узнаваемый значок на категорию,
 // плюс несколько «фирменных» вариантов для товаров из стартового каталога.
@@ -44,15 +43,21 @@ const DEFAULT_PRODUCTS = [
   { id: 'p6', category: 'Сувениры', name: 'Бюст Исмоили Сомони', price: 3200, badge: 'Коллекц.', icon: 'bust', image: '', description: 'Коллекционная миниатюра, бронза с позолотой, пронумерована.' },
 ];
 
-// Читает актуальный каталог из Cloudinary. Пока админка ни разу не
-// сохраняла товары, файла там ещё нет — тогда просто показываем
-// стартовый набор из шести товаров, как и раньше.
+// Читает актуальный каталог через /api/catalog (см. api/catalog.js) — этот
+// сервер сам ходит в Cloudinary в обход кэширующей сети, поэтому здесь
+// всегда самая свежая версия, без риска увидеть только что удалённый
+// товар снова. Пока админка ни разу не сохраняла товары, каталога ещё
+// нет — тогда показываем стартовый набор из шести товаров.
+// Важно: пустой каталог (все товары удалили нарочно) — это тоже
+// допустимое, настоящее состояние, а не повод подставлять набор по
+// умолчанию.
 async function getProducts() {
   try {
-    const res = await fetch(CATALOG_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    const res = await fetch('/api/catalog', { cache: 'no-store' });
     if (!res.ok) return DEFAULT_PRODUCTS.slice();
     const list = await res.json();
-    return Array.isArray(list) && list.length ? list : DEFAULT_PRODUCTS.slice();
+    if (list === null) return DEFAULT_PRODUCTS.slice();
+    return Array.isArray(list) ? list : DEFAULT_PRODUCTS.slice();
   } catch (e) {
     return DEFAULT_PRODUCTS.slice();
   }
