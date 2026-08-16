@@ -1,14 +1,19 @@
-// Рендер сетки товаров на витрине из каталога (localStorage) с фильтром
-// по категории. Выполняется синхронно при загрузке страницы, до того как
-// main.js настраивает scroll-reveal — поэтому карточки при первой отрисовке
-// тоже красиво появляются.
+// Рендер сетки товаров на витрине из общего каталога Cloudinary,
+// с фильтром по категории. Каталог грузится асинхронно, поэтому у
+// карточек свой собственный observer для плавного появления —
+// не полагаемся на время запуска main.js.
 (function () {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
 
   const tabsWrap = document.getElementById('storeFilterTabs');
   let activeCategory = '';
-  let hasRenderedOnce = false;
+  let allProducts = [];
+  let loaded = false;
+
+  const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in-view'); cardObserver.unobserve(e.target); } });
+  }, { threshold: .15, rootMargin: '0px 0px -8% 0px' });
 
   function formatPrice(n) {
     return Number(n).toLocaleString('ru-RU');
@@ -27,7 +32,7 @@
 
   function mediaMarkup(p) {
     if (p.image) {
-      return '<img src="' + p.image + '" alt="' + escapeHtml(p.name) + '">';
+      return '<img src="' + p.image + '" alt="' + escapeHtml(p.name) + '" loading="lazy">';
     }
     const key = p.icon && ICONS[p.icon] ? p.icon : (CATEGORY_ICON[p.category] || 'watch-generic');
     return '<svg viewBox="0 0 100 100">' + ICONS[key] + '</svg>';
@@ -54,10 +59,12 @@
       '</article>';
   }
 
-  function render() {
-    const all = getProducts();
-    const products = activeCategory ? all.filter((p) => p.category === activeCategory) : all;
-
+  function renderFiltered() {
+    if (!loaded) {
+      grid.innerHTML = '<p style="color:var(--text-faint);grid-column:1/-1;text-align:center;padding:40px 0;">Загружаем каталог…</p>';
+      return;
+    }
+    const products = activeCategory ? allProducts.filter((p) => p.category === activeCategory) : allProducts;
     if (!products.length) {
       grid.innerHTML = '<p style="color:var(--text-faint);grid-column:1/-1;text-align:center;padding:40px 0;">' +
         (activeCategory ? 'В категории «' + activeCategory + '» пока нет товаров.' : 'Каталог пока пуст — добавьте товары в панели управления.') +
@@ -65,14 +72,13 @@
     } else {
       grid.innerHTML = products.map(cardMarkup).join('');
     }
+    grid.querySelectorAll('[data-reveal]').forEach((el) => cardObserver.observe(el));
+  }
 
-    // При первой загрузке карточки красиво проявляются через observer в main.js.
-    // При повторном рендере (после смены фильтра) новые карточки этот observer
-    // ещё не видел — показываем их сразу, без анимации.
-    if (hasRenderedOnce) {
-      grid.querySelectorAll('[data-reveal]').forEach((el) => el.classList.add('in-view'));
-    }
-    hasRenderedOnce = true;
+  async function loadAndRender() {
+    allProducts = await getProducts();
+    loaded = true;
+    renderFiltered();
   }
 
   function setActiveCategory(cat) {
@@ -82,7 +88,7 @@
         btn.classList.toggle('is-active', (btn.dataset.cat || '') === activeCategory);
       });
     }
-    render();
+    renderFiltered();
   }
 
   if (tabsWrap) {
@@ -101,5 +107,5 @@
     link.addEventListener('click', () => setActiveCategory(link.dataset.filter));
   });
 
-  render();
+  loadAndRender();
 })();

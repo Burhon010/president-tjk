@@ -47,13 +47,14 @@
     }
   });
 
-  function runSearch(query) {
+  async function runSearch(query) {
     const q = query.trim().toLowerCase();
     if (!q) {
       resultsEl.innerHTML = '<p class="search-hint">Начните вводить название или категорию товара.</p>';
       return;
     }
-    const matches = getProducts().filter((p) => (
+    const products = await getProducts();
+    const matches = products.filter((p) => (
       p.name.toLowerCase().includes(q) ||
       p.category.toLowerCase().includes(q) ||
       (p.description || '').toLowerCase().includes(q)

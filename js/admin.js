@@ -1,7 +1,9 @@
 // Логика панели управления товарами.
 // Отдельного входа внутри самой панели больше нет — доступ к этой странице
 // уже проверен на сервере (см. middleware.js), поэтому здесь сразу открыт
-// весь функционал.
+// весь функционал. Сам каталог и фото хранятся в Cloudinary (см.
+// products-data.js и cloudinary.js) — изменения видны сразу всем,
+// на любом устройстве.
 
 const tbody = document.getElementById('productTbody');
 const countEl = document.getElementById('productCount');
@@ -23,7 +25,8 @@ const editIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 const trashIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M9 7V5a2 2 0 012-2h2a2 2 0 012 2v2m2 0-1 13a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7"/></svg>';
 
 let editingId = null;
-let currentImageData = '';
+let currentImageUrl = '';      // Cloudinary-адрес текущего фото (или пустая строка)
+let pendingUpload = null;      // Promise загрузки нового фото, пока она не завершилась
 
 // ---------- Фильтр по категориям ----------
 const filterTabs = document.getElementById('filterTabs');
@@ -65,8 +68,8 @@ function pluralize(n) {
 
 let activeCategory = '';
 
-function renderTable() {
-  const all = getProducts();
+async function renderTable() {
+  const all = await getProducts();
   const products = activeCategory ? all.filter((p) => p.category === activeCategory) : all;
 
   countEl.textContent = activeCategory
@@ -97,18 +100,20 @@ function renderTable() {
   )).join('');
 }
 
-tbody.addEventListener('click', (e) => {
+tbody.addEventListener('click', async (e) => {
   const row = e.target.closest('tr');
   if (!row) return;
   const id = row.dataset.id;
 
   if (e.target.closest('.edit-btn')) {
-    const p = getProducts().find((x) => x.id === id);
+    const products = await getProducts();
+    const p = products.find((x) => x.id === id);
     if (p) openForm(p);
   } else if (e.target.closest('.delete-btn')) {
     if (confirm('Удалить этот товар из каталога?')) {
-      saveProducts(getProducts().filter((x) => x.id !== id));
-      renderTable();
+      const products = await getProducts();
+      await saveProducts(products.filter((x) => x.id !== id));
+      await renderTable();
       showToast('Товар удалён');
     }
   }
@@ -127,7 +132,8 @@ function openForm(product) {
   nameInput.value = product ? product.name : '';
   priceInput.value = product ? product.price : '';
   descInput.value = product ? (product.description || '') : '';
-  currentImageData = product ? (product.image || '') : '';
+  currentImageUrl = product ? (product.image || '') : '';
+  pendingUpload = null;
   updatePhotoPreview();
   overlay.classList.add('is-open');
   setTimeout(() => nameInput.focus(), 150);
@@ -139,8 +145,8 @@ function closeForm() {
 }
 
 function updatePhotoPreview() {
-  if (currentImageData) {
-    photoPreview.src = currentImageData;
+  if (currentImageUrl) {
+    photoPreview.src = currentImageUrl;
     photoPreview.style.display = 'block';
     photoPlaceholder.style.display = 'none';
   } else {
@@ -170,15 +176,33 @@ photoInput.addEventListener('change', () => {
       canvas.width = SIZE;
       canvas.height = SIZE;
       canvas.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
-      currentImageData = canvas.toDataURL('image/jpeg', 0.82);
-      updatePhotoPreview();
+
+      // Мгновенный локальный превью, пока фото грузится в Cloudinary
+      photoPreview.src = canvas.toDataURL('image/jpeg', 0.82);
+      photoPreview.style.display = 'block';
+      photoPlaceholder.style.display = 'none';
+
+      canvas.toBlob((blob) => {
+        pendingUpload = uploadToCloudinary(blob, {
+          folder: 'president-tjk/products',
+          resourceType: 'image',
+        }).then((res) => {
+          currentImageUrl = res.secure_url;
+          pendingUpload = null;
+          return res.secure_url;
+        }).catch((err) => {
+          pendingUpload = null;
+          showToast('Не удалось загрузить фото — попробуйте ещё раз');
+          throw err;
+        });
+      }, 'image/jpeg', 0.82);
     };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 });
 
-productForm.addEventListener('submit', (e) => {
+productForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const name = nameInput.value.trim();
   const price = Number(priceInput.value);
@@ -186,8 +210,17 @@ productForm.addEventListener('submit', (e) => {
   if (!name) { showToast('Укажите название товара'); return; }
   if (!price || price <= 0) { showToast('Укажите цену товара'); return; }
 
+  if (pendingUpload) {
+    showToast('Подождите, фото ещё загружается…');
+    try {
+      await pendingUpload;
+    } catch (err) {
+      return; // сообщение об ошибке уже показано в обработчике загрузки
+    }
+  }
+
   const description = descInput.value.trim();
-  const products = getProducts();
+  const products = await getProducts();
 
   if (editingId) {
     const idx = products.findIndex((p) => p.id === editingId);
@@ -198,7 +231,7 @@ productForm.addEventListener('submit', (e) => {
       // новой категории (иначе после смены категории виден чужой значок).
       const iconStillFits = (ICONS_BY_CATEGORY[category] || []).includes(prev.icon);
       const icon = iconStillFits ? prev.icon : CATEGORY_ICON[category];
-      products[idx] = { ...prev, category, name, price, description, icon, image: currentImageData };
+      products[idx] = { ...prev, category, name, price, description, icon, image: currentImageUrl };
     }
   } else {
     products.push({
@@ -209,13 +242,13 @@ productForm.addEventListener('submit', (e) => {
       badge: '',
       description,
       icon: CATEGORY_ICON[catInput.value],
-      image: currentImageData,
+      image: currentImageUrl,
     });
   }
 
-  saveProducts(products);
+  await saveProducts(products);
   closeForm();
-  renderTable();
+  await renderTable();
   showToast(editingId ? 'Товар обновлён' : 'Товар добавлен');
 });
 

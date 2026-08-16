@@ -1,9 +1,11 @@
 // Общие данные и утилиты каталога товаров.
 // Используются и витриной (index.html), и панелью управления (admin.html).
-// Хранилище — localStorage браузера (без сервера): один и тот же каталог виден
-// на обеих страницах, если они открыты с одного компьютера/из одной папки.
+// Сам каталог хранится в Cloudinary (один общий JSON-файл) — поэтому он
+// одинаковый на любом устройстве и у любого посетителя, а не только
+// в браузере, где его редактировали.
 
-const PRODUCTS_KEY = 'presidentTjkProducts';
+const CLOUDINARY_CLOUD_NAME = 's2yi4ma6';
+const CATALOG_URL = 'https://res.cloudinary.com/' + CLOUDINARY_CLOUD_NAME + '/raw/upload/president-tjk/catalog';
 
 // Наборы штрихов для карточек без своего фото — один узнаваемый значок на категорию,
 // плюс несколько «фирменных» вариантов для товаров из стартового каталога.
@@ -42,24 +44,16 @@ const DEFAULT_PRODUCTS = [
   { id: 'p6', category: 'Сувениры', name: 'Бюст Исмоили Сомони', price: 3200, badge: 'Коллекц.', icon: 'bust', image: '', description: 'Коллекционная миниатюра, бронза с позолотой, пронумерована.' },
 ];
 
-function seedDefaults() {
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(DEFAULT_PRODUCTS));
-}
-
-function getProducts() {
-  let raw = localStorage.getItem(PRODUCTS_KEY);
-  if (!raw) {
-    seedDefaults();
-    raw = localStorage.getItem(PRODUCTS_KEY);
-  }
+// Читает актуальный каталог из Cloudinary. Пока админка ни разу не
+// сохраняла товары, файла там ещё нет — тогда просто показываем
+// стартовый набор из шести товаров, как и раньше.
+async function getProducts() {
   try {
-    const list = JSON.parse(raw);
-    return Array.isArray(list) ? list : DEFAULT_PRODUCTS.slice();
+    const res = await fetch(CATALOG_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) return DEFAULT_PRODUCTS.slice();
+    const list = await res.json();
+    return Array.isArray(list) && list.length ? list : DEFAULT_PRODUCTS.slice();
   } catch (e) {
     return DEFAULT_PRODUCTS.slice();
   }
-}
-
-function saveProducts(list) {
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(list));
 }

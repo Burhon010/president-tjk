@@ -72,7 +72,7 @@
     updateBadge();
   }
 
-  function setQty(id, qty) {
+  async function setQty(id, qty) {
     let cart = getCart();
     if (qty <= 0) {
       cart = cart.filter((item) => item.id !== id);
@@ -82,18 +82,18 @@
     }
     saveCart(cart);
     updateBadge();
-    renderCart();
+    await renderCart();
   }
 
-  function removeFromCart(id) {
+  async function removeFromCart(id) {
     saveCart(getCart().filter((item) => item.id !== id));
     updateBadge();
-    renderCart();
+    await renderCart();
   }
 
-  function renderCart() {
+  async function renderCart() {
     const cart = getCart();
-    const products = getProducts();
+    const products = await getProducts();
     const rows = cart
       .map((item) => ({ item, product: products.find((p) => p.id === item.id) }))
       .filter((x) => x.product);
@@ -145,11 +145,11 @@
     else if (e.target.closest('.remove-btn')) removeFromCart(id);
   });
 
-  function openCart() {
+  async function openCart() {
     window.closeMobileNav?.();
-    renderCart();
     cartOverlay.classList.add('is-open');
     window.syncScrollLock?.();
+    await renderCart();
   }
   function closeCart() {
     cartOverlay.classList.remove('is-open');
@@ -194,9 +194,15 @@
     document.body.removeChild(ta);
   }
 
-  checkoutBtn.addEventListener('click', () => {
+  checkoutBtn.addEventListener('click', async () => {
     const cart = getCart();
-    const products = getProducts();
+    if (!cart.length) return;
+
+    // Открываем вкладку сразу, синхронно с кликом, ДО каких-либо await —
+    // иначе Safari и другие браузеры блокируют её как всплывающее окно.
+    window.open('https://t.me/+992885444442', '_blank', 'noopener');
+
+    const products = await getProducts();
     const rows = cart
       .map((item) => ({ item, product: products.find((p) => p.id === item.id) }))
       .filter((x) => x.product);
@@ -210,9 +216,6 @@
     });
     const message = 'Здравствуйте! Хочу оформить заказ на President.tjk:\n' + lines.join('\n') + '\n\nИтого: ' + formatPrice(total) + ' TJS';
 
-    // Открываем вкладку сразу, синхронно с кликом — иначе Safari и другие
-    // браузеры блокируют её как всплывающее окно после ожидания промиса.
-    window.open('https://t.me/+992885444442', '_blank', 'noopener');
     copyText(message).then(() => {
       showToast('Текст заказа скопирован — вставьте его в чат');
     });
